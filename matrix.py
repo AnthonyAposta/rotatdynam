@@ -1,6 +1,6 @@
 import sympy as sym
 
-
+"""
 a, t, p  = sym.symbols('a,t,p', real=True)
 
 
@@ -28,10 +28,50 @@ def construct_rotation(b_in,b_out): #tem a a base inicial e final e quer saber a
 
     sym.pprint(transformation)
 
-"""    
+   
 a = [[1,0,0],[0,1,0],[0,0,1]]
 b = [[2,0,0],[0,0,0],[0,0,-1]]
 
 construct_rotation(a,b)
 """
 
+# quero uma função que dado o objeto e o ponto de origem, calcule o tensor de inercia
+
+
+class placa(object):
+
+	def __init__(self):
+
+		dimens  = {'x_1':[0,a],'X_2':[0,b],'X_2':[0,0]}
+
+		x_1, x_2, x_3 = sym.symbols('x_1, x_2, x_3', real=True)
+
+		self.M, self.a, self.b = sym.symbols('M,a,b',real=True)
+
+		sigma = self.M/(self.a*self.b)
+
+
+	def tensor_inercia(self):
+
+		tensor_I = sym.zeros(3,3)
+
+		#primeiro calcular no centro de massa e depois utlizar rotãção e teorema dos eixos paralelos
+
+		for i in range(1:4):
+
+			tensor_I[i,i] = sym.integrate(-self.sigma*X[i]*X[i],(X[i],))
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+paralelepipedo()
