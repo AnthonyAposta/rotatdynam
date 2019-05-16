@@ -71,7 +71,7 @@ class placa(object):
 					self.tensor_I_cm[i,j] = sym.integrate( self.sigma *  self.dimens[i][0] * self.dimens[j][0], (self.dimens[0][0], self.dimens[0][1],self.dimens[0][2]), (self.dimens[1][0], self.dimens[1][1],self.dimens[1][2]))
 
 		print('tensor de inercia no centro de massa:\n')
-		sym.pprint(self.tensor_I_cm)
+		sym.pprint(sym.simplify(self.tensor_I_cm))
 		print('\n\n\n')
 
 	def calcular_I_em(self): #x e y são coordenadas em relação ao objeto, f( variabel, operacao, variavel operacao, variavel operacao   ) 
@@ -98,12 +98,31 @@ class placa(object):
 					tensor_I[i,j] = self.tensor_I_cm[i,j] - (self.M*(self.R[i]*self.R[j]))
 
 		print('tensor de inercia no ponto x=%s, y=%s:\n'%(self.x,self.y))
-		sym.pprint(tensor_I)
+		sym.pprint(sym.simplify(tensor_I))
 		print('\n\n\n')
+
+		return tensor_I
+
+	def rotacao_diagonal(self,I): # aplica uma rotação em I de um angulo que forma tg(teta) = a/b, ou seja o novo eixo setará na diagonal da placa
+
+		diag_rot_matrix = (1/(sym.sqrt(self.a**2 + self.b**2)))*sym.Matrix([[self.b,self.a,0],
+																		 [-self.a,self.b,0],
+																		 [0,0,1]])
+
+		tensor_I_diagon = diag_rot_matrix*I
+
+		print('tensor de inercia no eixo diagonal da placa:')
+		sym.pprint(sym.simplify(tensor_I_diagon))
+		print('\n\n\n')
+
+	def rotacao(self, I, angulo, eixo):
+		
+
 
 
 p = placa()
-p.calcular_I_em()
+tensor = p.calcular_I_em()
+diag_tensor = p.rotacao_diagonal(tensor)
 
 
 
