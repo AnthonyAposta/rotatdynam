@@ -36,42 +36,76 @@ construct_rotation(a,b)
 """
 
 # quero uma função que dado o objeto e o ponto de origem, calcule o tensor de inercia
+#objetos inicias: /placa_2d/paralelepipedo/cilindro/cone/
 
 
 class placa(object):
 
 	def __init__(self):
 
-		dimens  = {'x_1':[0,a],'X_2':[0,b],'X_2':[0,0]}
+		
+		self.x_1, self.x_2, self.x_3 = sym.symbols('x_1, x_2, x_3', real=True) #variaveis
 
-		x_1, x_2, x_3 = sym.symbols('x_1, x_2, x_3', real=True)
+		self.M, self.a, self.b = sym.symbols('M,a,b',real=True) #caracteristicas do obejto fisico
 
-		self.M, self.a, self.b = sym.symbols('M,a,b',real=True)
+		self.dimens  = [[self.x_1,-self.a/2,self.a/2],[self.x_2,-self.b/2,self.b/2],[0,0,0]] #dimensoes do obejto com relção a origem do sistema de coordenadas
 
-		sigma = self.M/(self.a*self.b)
+		self.raio_2 = [self.x_2**2,self.x_1**2, self.x_1**2 + self.x_2**2] #raio de giração ao quadrado em relação aos eixos x1 x2 e x3 respectivamente
+
+		self.sigma = self.M/(self.a*self.b) #densidade de massa 
+
+		self.tensor_I_cm = sym.zeros(3,3)
 
 
-	def tensor_inercia(self):
+		#primeiro calcular no centro de massa e depois utlizar rotação e teorema dos eixos paralelos
+
+		for i in range(0,3):
+			for j in range(0,3):
+
+				if i==j:
+
+					self.tensor_I_cm[i,j] = sym.integrate(self.sigma * (self.raio_2[i]), (self.dimens[0][0], self.dimens[0][1],self.dimens[0][2]), (self.dimens[1][0], self.dimens[1][1],self.dimens[1][2]))
+
+				else:
+
+					self.tensor_I_cm[i,j] = sym.integrate( self.sigma *  self.dimens[i][0] * self.dimens[j][0], (self.dimens[0][0], self.dimens[0][1],self.dimens[0][2]), (self.dimens[1][0], self.dimens[1][1],self.dimens[1][2]))
+
+		print('tensor de inercia no centro de massa:\n')
+		sym.pprint(self.tensor_I_cm)
+		print('\n\n\n')
+
+	def calcular_I_em(self): #x e y são coordenadas em relação ao objeto, f( variabel, operacao, variavel operacao, variavel operacao   ) 
+
+		#aplicar rotações e ou translação para recalcular o tensor de inercia
+
+		self.x = 0
+		self.y = 0
+		self.z = 0
+
+		self.R = sym.Matrix([self.x,self.y,self.z])  #vetor que localiza o novo ponto onde será calculado o tensor de inercia
+
+		self.RR = self.R.T * self.R  #modulo do vetor R
 
 		tensor_I = sym.zeros(3,3)
 
-		#primeiro calcular no centro de massa e depois utlizar rotãção e teorema dos eixos paralelos
+		for i in range(0,3):
+			for j in range(0,3):
 
-		for i in range(1:4):
+				if i==j:
+					tensor_I[i,j] = self.tensor_I_cm[i,j] + (self.M*( (self.RR[0]) - (self.R[i]*self.R[j])))
 
-			tensor_I[i,i] = sym.integrate(-self.sigma*X[i]*X[i],(X[i],))
+				else:
+					tensor_I[i,j] = self.tensor_I_cm[i,j] - (self.M*(self.R[i]*self.R[j]))
 
-
-
-
-
-
-
-		
-
+		print('tensor de inercia no ponto x=%s, y=%s:\n'%(self.x,self.y))
+		sym.pprint(tensor_I)
+		print('\n\n\n')
 
 
+p = placa()
+p.calcular_I_em()
 
 
 
-paralelepipedo()
+
+
