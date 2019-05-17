@@ -39,11 +39,47 @@ construct_rotation(a,b)
 #objetos inicias: /placa_2d/paralelepipedo/cilindro/cone/
 
 
+class disco(object):
+
+	def __init__(self):
+
+		self.x_1, self.x_2, self.x_3, t = sym.symbols('x_1, x_2, x_3, t', real=True) #variaveis
+
+		self.M, self.r, self.h, self.a = sym.symbols('M,r,h,a',real=True) #caracteristicas do obejto fisico
+
+		dimens  = [[self.r,0,self.a],[t,0,(sym.pi*2)]] #dimensoes do obejto com relação a origem do sistema de coordenadas
+
+		X = [(self.r*sym.cos(t)), (self.r*sym.sin(t)),0] # disco em coordenadas polares
+
+		self.sigma = self.M/(sym.pi * (self.a**2)) #densidade de massa 
+
+		self.disco_I_cm = sym.zeros(3,3)
+
+		#primeiro calcular no centro de massa e depois utlizar rotação e teorema dos eixos paralelos
+
+		for i in range(0,3):
+			for j in range(0,3):
+
+				if i==j:
+
+					self.disco_I_cm[i,j] = sym.integrate(self.sigma * ((self.r**2) - (X[i]**2)) * self.r , (dimens[0][0], dimens[0][1],dimens[0][2]), (dimens[1][0],dimens[1][1],dimens[1][2]))
+
+
+				else:
+
+					self.disco_I_cm[i,j] = sym.integrate( -self.sigma * X[i] * X[j] * self.r, (dimens[0][0], dimens[0][1],dimens[0][2]), (dimens[1][0], dimens[1][1],dimens[1][2]))
+
+		print('tensor de inercia no centro de massa do disco:\n')
+		sym.pprint((self.disco_I_cm))
+		print('\n\n\n')
+
+
+
+
 class placa(object):
 
 	def __init__(self):
 
-		
 		self.x_1, self.x_2, self.x_3 = sym.symbols('x_1, x_2, x_3', real=True) #variaveis
 
 		self.M, self.a, self.b = sym.symbols('M,a,b',real=True) #caracteristicas do obejto fisico
@@ -68,7 +104,7 @@ class placa(object):
 
 				else:
 
-					self.tensor_I_cm[i,j] = sym.integrate( self.sigma *  self.dimens[i][0] * self.dimens[j][0], (self.dimens[0][0], self.dimens[0][1],self.dimens[0][2]), (self.dimens[1][0], self.dimens[1][1],self.dimens[1][2]))
+					self.tensor_I_cm[i,j] = sym.integrate( -self.sigma *  self.dimens[i][0] * self.dimens[j][0], (self.dimens[0][0], self.dimens[0][1],self.dimens[0][2]), (self.dimens[1][0], self.dimens[1][1],self.dimens[1][2]))
 
 		print('tensor de inercia no centro de massa:\n')
 		sym.pprint(sym.simplify(self.tensor_I_cm))
@@ -115,14 +151,10 @@ class placa(object):
 		sym.pprint(sym.simplify(tensor_I_diagon))
 		print('\n\n\n')
 
-	def rotacao(self, I, angulo, eixo):
-		
 
 
+p = disco()
 
-p = placa()
-tensor = p.calcular_I_em()
-diag_tensor = p.rotacao_diagonal(tensor)
 
 
 
